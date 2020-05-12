@@ -4269,23 +4269,27 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 
 // UpdateGraph updates the graph from a specific peer.
 func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) (*lnrpc.UpdateGraphResponse, error) {
-	pubkey := req.PubKey
+	rpcsLog.Infof("Finding peer by pubkey: %v", req.PubKey)
 
-	rpcsLog.Infof("Finding peer by pubkey: %v", pubkey)
-
-	rpcsLog.Infof("r.server.peersByPub: %v", r.server.peersByPub)
-
-	for _, peer := range r.server.peersByPub {
-		rpcsLog.Infof("Listing known peers: %v", peer.addr.IdentityKey)
+	pubKeyBytes, err := hex.DecodeString(req.PubKey)
+	if err != nil {
+		return nil, fmt.Errorf("unable to decode pubkey bytes: %v", err)
+	}
+	peerPubKey, err := btcec.ParsePubKey(pubKeyBytes, btcec.S256())
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse pubkey: %v", err)
 	}
 
-	peer, err := r.server.FindPeerByPubStr(string(pubkey))
+	pubBytes := peerPubKey.SerializeCompressed()
+	pubStr := string(pubBytes)
+
+	peer, err := r.server.FindPeerByPubStr(pubStr)
 	if err != nil {
-		rpcsLog.Infof("unable to find peer: %v", pubkey, err)
+		rpcsLog.Infof("unable to find peer: %v", pubStr, err)
 		return nil, err
 	}
 
-	rpcsLog.Infof("[UpdateGraph] Forcing %v to be active syncer", pubkey)
+	rpcsLog.Infof("[UpdateGraph] Forcing %v to be active syncer", pubStr)
 	syncErr := r.server.authGossiper.SyncManager().ForceActiveGossipSyncer(peer)
 
 	if syncErr != nil {
