@@ -631,6 +631,15 @@ service Lightning {
         };
     }
 
+    /** lncli: `updategraph`
+    UpdateGraph updates the graph from a certain peer.
+    */
+    rpc UpdateGraph (UpdateGraphRequest) returns (UpdateGraph) {
+        option (google.api.http) = {
+            get: "/v1/graph/update"
+        };
+    }
+
     /** lncli: `getchaninfo`
     GetChanInfo returns the latest authenticated network announcement for the
     given channel identified by its channel ID: an 8-byte integer which
@@ -2326,6 +2335,10 @@ message ChannelGraph {
 
     /// The list of `ChannelEdge`s in this channel graph
     repeated ChannelEdge edges = 2 [json_name = "edges"];
+}
+
+message UpdateGraph {
+
 }
 
 message ChanInfoRequest {

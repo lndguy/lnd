@@ -355,6 +355,10 @@ func mainRPCServerPermissions() map[string][]bakery.Op {
 			Entity: "info",
 			Action: "read",
 		}},
+		"/lnrpc.Lightning/UpdateGraph": {{
+			Entity: "info",
+			Action: "write",
+		}},
 		"/lnrpc.Lightning/GetChanInfo": {{
 			Entity: "info",
 			Action: "read",
@@ -4261,6 +4265,26 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 	}
 
 	return resp, nil
+}
+
+// UpdateGraph updates the graph from a specific peer.
+func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) error {
+	pubkey := req.Pubkey
+
+	peer, err := r.server.findPeerByPubStr(pubkey)
+	if err != nil {
+		rpcsLog.Debugf("unable to find peer: %v", pubkey, err)
+		return err
+	}
+
+	rpcsLog.Debugf("[UpdateGraph] Forcing %v to be active syncer", pubkey)
+	syncErr := r.server.authGossiper.SyncManager().ForceActiveGossipSyncer(peer)
+
+	if syncErr != nil {
+		return syncErr
+	}
+
+	return nil
 }
 
 func marshalDbEdge(edgeInfo *channeldb.ChannelEdgeInfo,

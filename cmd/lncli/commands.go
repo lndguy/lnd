@@ -2910,6 +2910,37 @@ func describeGraph(ctx *cli.Context) error {
 	return nil
 }
 
+var updateGraphCommand = cli.Command{
+	Name:        "updategraph",
+	Category:    "Peers",
+	Description: "Forces a graph update from a specific peer",
+	Usage:       "Updates the network graph.",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "pub_key",
+			Usage: "the 33-byte hex-encoded compressed public of the target " +
+				"node",
+		},
+	},
+	Action: actionDecorator(updateGraph),
+}
+
+func updateGraph(ctx *cli.Context) error {
+	client, cleanUp := getClient(ctx)
+	defer cleanUp()
+
+	req := &lnrpc.UpdateGraphRequest{
+		pubkey: ctx.Bool("pub_key"),
+	}
+
+	err := client.UpdateGraph(context.Background(), req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 var listPaymentsCommand = cli.Command{
 	Name:     "listpayments",
 	Category: "Payments",

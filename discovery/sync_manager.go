@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -397,6 +398,26 @@ func (m *SyncManager) syncerHandler() {
 		case <-m.quit:
 			return
 		}
+	}
+}
+
+// ForceActiveGossipSyncer forces a peer to be active
+func (m *SyncManager) ForceActiveGossipSyncer(peer lnpeer.Peer) error {
+	m.syncersMu.Lock()
+	defer m.syncersMu.Unlock()
+
+	nodeID := route.Vertex(peer.PubKey())
+	log.Infof("Getting GossipSyncer from peer=%x", nodeID[:])
+
+	gossipSyncer, ok := m.gossipSyncer(nodeID)
+	if !ok {
+		return fmt.Errorf("unable to locate syncer for %v", nodeID)
+	}
+
+	if err := m.transitionPassiveSyncer(gossipSyncer); err != nil {
+		log.Errorf("Unable to transition active GossipSyncer(%x): %v",
+			gossipSyncer.cfg.peerPub, err)
+		return err
 	}
 }
 
