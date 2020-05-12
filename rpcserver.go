@@ -4268,23 +4268,23 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 }
 
 // UpdateGraph updates the graph from a specific peer.
-func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) error {
+func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) (*lnrpc.UpdateGraphResponse, error) {
 	pubkey := req.PubKey
 
 	peer, err := r.server.findPeerByPubStr(pubkey)
 	if err != nil {
 		rpcsLog.Debugf("unable to find peer: %v", pubkey, err)
-		return err
+		return nil, err
 	}
 
 	rpcsLog.Debugf("[UpdateGraph] Forcing %v to be active syncer", pubkey)
 	syncErr := r.server.authGossiper.SyncManager().ForceActiveGossipSyncer(peer)
 
 	if syncErr != nil {
-		return syncErr
+		return nil, syncErr
 	}
 
-	return nil
+	return nil, nil
 }
 
 func marshalDbEdge(edgeInfo *channeldb.ChannelEdgeInfo,

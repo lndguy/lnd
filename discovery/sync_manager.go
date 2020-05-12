@@ -419,6 +419,8 @@ func (m *SyncManager) ForceActiveGossipSyncer(peer lnpeer.Peer) error {
 			gossipSyncer.cfg.peerPub, err)
 		return err
 	}
+
+	return nil
 }
 
 // createGossipSyncer creates the GossipSyncer for a newly connected peer.
