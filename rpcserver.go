@@ -4271,13 +4271,21 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) (*lnrpc.UpdateGraphResponse, error) {
 	pubkey := req.PubKey
 
+	rpcsLog.Infof("Finding peer by pubkey: %v", pubkey)
+
+	rpcsLog.Infof("r.server.peersByPub: %v", r.server.peersByPub)
+
+	for _, peer := range r.server.peersByPub {
+		rpcsLog.Infof("Listing known peers: %v", peer.addr.IdentityKey)
+	}
+
 	peer, err := r.server.FindPeerByPubStr(string(pubkey))
 	if err != nil {
-		rpcsLog.Debugf("unable to find peer: %v", pubkey, err)
+		rpcsLog.Infof("unable to find peer: %v", pubkey, err)
 		return nil, err
 	}
 
-	rpcsLog.Debugf("[UpdateGraph] Forcing %v to be active syncer", pubkey)
+	rpcsLog.Infof("[UpdateGraph] Forcing %v to be active syncer", pubkey)
 	syncErr := r.server.authGossiper.SyncManager().ForceActiveGossipSyncer(peer)
 
 	if syncErr != nil {
