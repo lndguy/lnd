@@ -4271,7 +4271,7 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) (*lnrpc.UpdateGraphResponse, error) {
 	pubkey := req.PubKey
 
-	peer, err := r.server.findPeerByPubStr(pubkey)
+	peer, err := r.server.FindPeerByPubStr(string(pubkey))
 	if err != nil {
 		rpcsLog.Debugf("unable to find peer: %v", pubkey, err)
 		return nil, err
