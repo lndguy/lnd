@@ -594,7 +594,7 @@ var openChannelCommand = cli.Command{
 	amount to the remote node as part of the channel opening. Once the channel is open,
 	a channelPoint (txid:vout) of the funding output is returned.
 
-	If the remote peer supports the option upfront shutdown feature bit (query 
+	If the remote peer supports the option upfront shutdown feature bit (query
 	listpeers to see their supported feature bits), an address to enforce
 	payout of funds on cooperative close can optionally be provided. Note that
 	if you set this value, you will not be able to cooperatively close out to
@@ -2930,13 +2930,15 @@ func updateGraph(ctx *cli.Context) error {
 	defer cleanUp()
 
 	req := &lnrpc.UpdateGraphRequest{
-		pubkey: ctx.Bool("pub_key"),
+		PubKey: ctx.String("pub_key"),
 	}
 
-	err := client.UpdateGraph(context.Background(), req)
+	resp, err := client.UpdateGraph(context.Background(), req)
 	if err != nil {
 		return err
 	}
+
+	printRespJSON(resp)
 
 	return nil
 }

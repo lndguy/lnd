@@ -4269,7 +4269,7 @@ func (r *rpcServer) DescribeGraph(ctx context.Context,
 
 // UpdateGraph updates the graph from a specific peer.
 func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphRequest) error {
-	pubkey := req.Pubkey
+	pubkey := req.PubKey
 
 	peer, err := r.server.findPeerByPubStr(pubkey)
 	if err != nil {
