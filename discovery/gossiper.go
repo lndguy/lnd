@@ -901,8 +901,8 @@ func (d *AuthenticatedGossiper) networkHandler() {
 	d.cfg.RetransmitTicker.Resume()
 	defer d.cfg.RetransmitTicker.Stop()
 
-	trickleTimer := time.NewTicker(d.cfg.TrickleDelay)
-	defer trickleTimer.Stop()
+	// trickleTimer := time.NewTicker(d.cfg.TrickleDelay)
+	// defer trickleTimer.Stop()
 
 	// To start, we'll first check to see if there are any stale channel or
 	// node announcements that we need to re-transmit.
@@ -1073,44 +1073,44 @@ func (d *AuthenticatedGossiper) networkHandler() {
 		// The trickle timer has ticked, which indicates we should
 		// flush to the network the pending batch of new announcements
 		// we've received since the last trickle tick.
-		case <-trickleTimer.C:
-			// Emit the current batch of announcements from
-			// deDupedAnnouncements.
-			announcementBatch := announcements.Emit()
+		// case <-trickleTimer.C:
+		// 	// Emit the current batch of announcements from
+		// 	// deDupedAnnouncements.
+		// 	announcementBatch := announcements.Emit()
 
-			// If the current announcements batch is nil, then we
-			// have no further work here.
-			if len(announcementBatch) == 0 {
-				continue
-			}
+		// 	// If the current announcements batch is nil, then we
+		// 	// have no further work here.
+		// 	if len(announcementBatch) == 0 {
+		// 		continue
+		// 	}
 
-			// Next, If we have new things to announce then
-			// broadcast them to all our immediately connected
-			// peers.
-			subBatchSize := calculateSubBatchSize(
-				d.cfg.TrickleDelay, d.cfg.SubBatchDelay, d.cfg.MinimumBatchSize,
-				len(announcementBatch),
-			)
+		// 	// Next, If we have new things to announce then
+		// 	// broadcast them to all our immediately connected
+		// 	// peers.
+		// 	subBatchSize := calculateSubBatchSize(
+		// 		d.cfg.TrickleDelay, d.cfg.SubBatchDelay, d.cfg.MinimumBatchSize,
+		// 		len(announcementBatch),
+		// 	)
 
-			splitAnnouncementBatch := splitAnnouncementBatches(
-				subBatchSize, announcementBatch,
-			)
+		// 	splitAnnouncementBatch := splitAnnouncementBatches(
+		// 		subBatchSize, announcementBatch,
+		// 	)
 
-			d.wg.Add(1)
-			go func() {
-				defer d.wg.Done()
-				log.Infof("Broadcasting %v new announcements in %d sub batches",
-					len(announcementBatch), len(splitAnnouncementBatch))
+		// 	d.wg.Add(1)
+		// 	go func() {
+		// 		defer d.wg.Done()
+		// 		log.Infof("Broadcasting %v new announcements in %d sub batches",
+		// 			len(announcementBatch), len(splitAnnouncementBatch))
 
-				for _, announcementBatch := range splitAnnouncementBatch {
-					d.sendBatch(announcementBatch)
-					select {
-					case <-time.After(d.cfg.SubBatchDelay):
-					case <-d.quit:
-						return
-					}
-				}
-			}()
+		// 		for _, announcementBatch := range splitAnnouncementBatch {
+		// 			d.sendBatch(announcementBatch)
+		// 			select {
+		// 			case <-time.After(d.cfg.SubBatchDelay):
+		// 			case <-d.quit:
+		// 				return
+		// 			}
+		// 		}
+		// 	}()
 
 		// The retransmission timer has ticked which indicates that we
 		// should check if we need to prune or re-broadcast any of our
