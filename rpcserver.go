@@ -4289,7 +4289,7 @@ func (r *rpcServer) UpdateGraph(ctx context.Context, req *lnrpc.UpdateGraphReque
 		return nil, err
 	}
 
-	rpcsLog.Infof("[UpdateGraph] Forcing %v to be active syncer", pubStr)
+	rpcsLog.Infof("[UpdateGraph] Forcing %v to be active syncer", req.PubKey)
 	syncErr := r.server.authGossiper.SyncManager().ForceActiveGossipSyncer(peer)
 
 	if syncErr != nil {
